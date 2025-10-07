@@ -1,0 +1,48 @@
+services:
+  three-tier-frontend:
+    build: .
+    image: three-tier-frontend
+    container_name: three-tier-frontend
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=flaskdb
+    networks:
+      - three-tier-net
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8080/\")' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  mysql:
+    image: mysql:8.0.43-debian
+    container_name: my-sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=flaskdb
+    networks:
+      - three-tier-net
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --password=password || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mysql_data:
+networks:
+  three-tier-net:

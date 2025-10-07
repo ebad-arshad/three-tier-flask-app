@@ -1,9 +1,20 @@
 from flask import Flask, render_template, request, redirect, url_for
 import mysql.connector
 import bcrypt  
+from dotenv import load_dotenv
+import os
 
-from config import DATABASE_CONFIG
+load_dotenv()
+
 app = Flask(__name__)
+
+# MySQL configurations from environment
+DATABASE_CONFIG = {
+    'host': os.getenv('MYSQL_HOST'),
+    'user': os.getenv('MYSQL_USER'),
+    'password': os.getenv('MYSQL_PASSWORD'),
+    'database': os.getenv('MYSQL_DATABASE')
+}
 
 # MySQL configurations
 db = mysql.connector.connect(**DATABASE_CONFIG)
