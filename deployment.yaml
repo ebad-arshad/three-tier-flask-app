@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: three-tier
+    tier: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: three-tier
+      tier: mysql
+  template:
+    metadata:
+      labels:
+        app: three-tier
+        tier: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0.43-debian
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "password"
+        - name: MYSQL_DATABASE
+          value: "flaskdb"
+        volumeMounts:
+         - name: mysql-storage
+           mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: three-tier-flask-app
+  labels:
+    app: three-tier
+    tier: flask
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: three-tier
+      tier: flask
+  template:
+    metadata:
+      labels:
+        app: three-tier
+        tier: flask
+    spec:
+      containers:
+      - name: three-tier-flask-app
+        image: ebadarshad/three-tier-flask-app
+        ports:
+        - containerPort: 8080
+        env:
+          - name: MYSQL_HOST
+            value: "mysql"
+          - name: MYSQL_USER
+            value: "root"
+          - name: MYSQL_PASSWORD
+            value: "password"
+          - name: MYSQL_DATABASE
+            value: "flaskdb"
+
+
