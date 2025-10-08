@@ -41,6 +41,7 @@ Once both services are running, open your browser at:
 
 The app reads database credentials from environment variables set in the docker-compose.yml file:
 
+**MYSQL_ROOT_HOST**\
 **MYSQL_ROOT_PASSWORD**\
 **MYSQL_DATABASE**\
 **MYSQL_USER**\
